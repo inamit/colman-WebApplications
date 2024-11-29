@@ -6,7 +6,7 @@ const {
   updateCommentById,
   deleteCommentById,
   saveNewComment,
-} = require("../controllers/comment");
+} = require("../controllers/comments_controller");
 
 router.post("/", saveNewComment);
 router.get("/", getComments);
