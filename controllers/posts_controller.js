@@ -1,4 +1,4 @@
-const Post = require("../models/post");
+const Post = require("../models/posts_model");
 
 const getPosts = async (req, res) => {
   const { sender } = req.query;
