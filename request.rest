@@ -72,3 +72,18 @@ Content-Type: application/json
     "email": "newUser@gmail.com",
     "password": "myPassword"
 }
+
+### Login for user
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "email": "aaaa@g.com",
+    "password": "dsav"
+}
+
+### Logout for user
+POST http://localhost:3000/users/logout
+Cookie: accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzRhZjE1YTgyZDhhODkxOWNmYWZkOTIiLCJpYXQiOjE3MzI5NzY3NDAsImV4cCI6MTczMjk4MDM0MH0.RTnOnnytZY_d22ETwDW6W35p-zpxXqj9IXrtE8Np1eI
+Cookie: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzRhZjE1YTgyZDhhODkxOWNmYWZkOTIiLCJyYW5kb20iOiI4NDQyNTIiLCJpYXQiOjE3MzI5NzY3NDAsImV4cCI6MTczMzAwMTk0MH0.j5EnmFfNtORXwAVOuqWPvmTKfi327VqYzs8pVV6q1aQ
