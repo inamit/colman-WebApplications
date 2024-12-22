@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 
 app.use("/posts", require("./routes/posts_route"));
 app.use("/comments", require("./routes/comments_route"));
+app.use("/users", require("./routes/users_route"));
 
 const initApp = () => {
   return new Promise(async (resolve, reject) => {
