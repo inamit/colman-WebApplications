@@ -1,8 +1,9 @@
-const mongoose = require("mongoose");
+import { Response } from "express";
+import mongoose, { ConnectOptions } from "mongoose";
 
-const connectDB = async () => {
+export const connectDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(process.env.DB_URL as string);
     console.log("Connected to MongoDB");
   } catch (err) {
     console.error("Error connecting to MongoDB", err);
@@ -10,7 +11,7 @@ const connectDB = async () => {
   }
 };
 
-const handleMongoQueryError = (res, err) => {
+export const handleMongoQueryError = (res: Response, err: Error): Response => {
   if (
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.CastError
@@ -20,5 +21,3 @@ const handleMongoQueryError = (res, err) => {
     return res.status(500).json({ error: "An error occurred." });
   }
 };
-
-module.exports = { connectDB, handleMongoQueryError };
