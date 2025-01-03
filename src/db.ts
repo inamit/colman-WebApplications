@@ -1,5 +1,6 @@
 import { Response } from "express";
-import mongoose, { ConnectOptions } from "mongoose";
+import { MongoError } from "mongodb";
+import mongoose from "mongoose";
 
 export const connectDB = async (): Promise<void> => {
   try {
@@ -11,8 +12,15 @@ export const connectDB = async (): Promise<void> => {
   }
 };
 
-export const handleMongoQueryError = (res: Response, err: Error): Response => {
-  if (
+export const handleMongoQueryError = (
+  res: Response,
+  err: MongoError | mongoose.Error
+): Response => {
+  const duplicateKeyErrorCode = 11000;
+
+  if (err instanceof MongoError && err?.code === duplicateKeyErrorCode) {
+    return res.status(400).json({ error: "Resource already exist" });
+  } else if (
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.CastError
   ) {
