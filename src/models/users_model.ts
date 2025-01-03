@@ -1,6 +1,5 @@
 import { Schema, Types, model } from "mongoose";
 import bcrypt from "bcrypt";
-import { log } from "console";
 
 export interface IUser {
   _id: Types.ObjectId;
