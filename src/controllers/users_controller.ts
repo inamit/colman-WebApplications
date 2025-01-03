@@ -1,19 +1,20 @@
-const User = require('../models/users_model');
-const token = require('../utilities/token');
-const bcrypt = require("bcrypt");
+import bcrypt from 'bcrypt';
+import { Request, Response } from "express";
+import * as token from '../utilities/token';
+import User, { IUser } from '../models/users_model';
 
 
-const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req: Request, res: Response): Promise<any> => {
     try {
-      const users = await User.find();
-      return res.json(users);
+      const users : IUser[] | null= await User.find();
+      return res.status(200).json(users);
     } catch (err) {
         console.warn("Error fetching users:", err);
         return res.status(500).json({ error: "An error occurred while fetching the users." });
       }
   };
   
-const registerNewUser = async (req, res) => {
+export const registerNewUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const {username, email, password} = req.body;
     const user = new User({
@@ -22,9 +23,9 @@ const registerNewUser = async (req, res) => {
       password
     });
 
-    const savedUser = await user.save();
-    return res.json(savedUser);
-  } catch (err) {
+    const savedUser : IUser= await user.save();
+    return res.status(200).json(savedUser);
+  } catch (err: any) {
     console.warn("Error registering user:", err);
     if (err.code === 11000) {
       return res.status(400).json({ error: "username already exsits."});
@@ -36,15 +37,19 @@ const registerNewUser = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req: Request, res: Response): Promise<any> => {
   try {
-    const {username, password} = req.body;
-    const existingUser = await User.findOne({username});
-    const isMatchedpassword = await bcrypt.compare(password, existingUser?.password);
-    if (!isMatchedpassword) {
+    const {username, password} : {username: string, password: string}= req.body;
+    const existingUser: IUser | null = await User.findOne({username});
+    if (existingUser) {
+      const isMatchedpassword : boolean = await bcrypt.compare(password, existingUser?.password);
+      if (!isMatchedpassword) {
+        return res.status(400).json({ error: "wrong credentials. Please try again."});
+      }
+    } else {
       return res.status(400).json({ error: "wrong credentials. Please try again."});
     }
-    const {accessToken, refreshToken} = await token.generateTokens(existingUser);
+    const {accessToken, refreshToken}: { accessToken: string; refreshToken: string }  = await token.generateTokens(existingUser);
     token.updateCookies(accessToken, refreshToken, res);
     return res.status(200).json({message: "logged in successfully."});
   } catch (err) {
@@ -53,14 +58,12 @@ const login = async (req, res) => {
   }
 }
 
-const logout = async (req, res) => {
+export const logout = async (req: Request, res: Response): Promise<any> => {
   try{
     token.clearCookies(res);
     return res.status(200).json({message: "logged out successfully."});
-  } catch {
+  } catch (err) {
     console.warn("Error while logging out:", err);
     return res.status(500).json({ error: "An error occurred while logging out.", err});
   }
 }
-
-module.exports = {getAllUsers, registerNewUser, login, logout};

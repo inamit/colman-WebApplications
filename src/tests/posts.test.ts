@@ -1,9 +1,11 @@
-const request = require("supertest");
-const initApp = require("../server.js");
-const mongoose = require("mongoose");
-const postsModel = require("../models/posts_model");
+import request from 'supertest';
+import initApp from '../server';
+import mongoose from 'mongoose';
+import { Express } from 'express';
+import postsModel, { IPost } from '../models/posts_model';
 
-let app;
+let app: Express; 
+
 beforeAll(async () => {
   app = await initApp();
 });
@@ -82,7 +84,7 @@ describe("GET /posts", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toBeInstanceOf(Array);
-      response.body.forEach((post) => {
+      response.body.forEach((post: IPost) => {
         expect(post.sender).toBe(sender);
       });
       expect(response.body).toHaveLength(expectedNumberOfPosts);
@@ -104,7 +106,7 @@ describe("GET /posts", () => {
 });
 
 describe("GET /posts/:post_id", () => {
-  let savedPosts = [];
+  let savedPosts: IPost[] = [];
   beforeEach(async () => {
     savedPosts = await postsModel.create(testPosts);
   });
@@ -133,7 +135,7 @@ describe("GET /posts/:post_id", () => {
 });
 
 describe("PUT /posts/:post_id", () => {
-  let savedPosts = [];
+  let savedPosts: IPost[] = [];
   beforeEach(async () => {
     savedPosts = await postsModel.create(testPosts);
   });

@@ -1,30 +1,31 @@
-const { handleMongoQueryError } = require("../db");
-const Comment = require("../models/comments_model");
-const Post = require("../models/posts_model");
+import Post from "../models/posts_model";
+import { Request, Response } from "express";
+import { handleMongoQueryError } from "../db";
+import Comment, { IComment } from "../models/comments_model";
 
-const getComments = async (req, res) => {
+export const getComments = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { post_id } = req.query;
-    const comments = await (post_id
+    const { post_id } : { post_id?: string } = req.query;
+    const comments : IComment[]  = await (post_id
       ? Comment.find({ postID: post_id })
       : Comment.find());
 
     return res.json(comments);
-  } catch (err) {
+  } catch (err: any) {
     console.warn("Error fetching comments:", err);
     return handleMongoQueryError(res, err);
   }
 };
 
-const saveNewComment = async (req, res) => {
-  const { post_id } = req.query;
+export const saveNewComment = async (req: Request, res: Response): Promise<any>  => {
+  const { post_id } : { post_id?: string } = req.query;
 
   try {
     if (!post_id) {
       return res.status(400).json({ error: "Post ID is required." });
     }
 
-    const postExists = (await Post.countDocuments({ _id: post_id }).exec()) > 0;
+    const postExists : boolean= (await Post.countDocuments({ _id: post_id }).exec()) > 0;
     if (!postExists) {
       return res.status(404).json({ error: "Post not found." });
     }
@@ -34,17 +35,17 @@ const saveNewComment = async (req, res) => {
       content: req.body.content,
       sender: req.body.sender,
     });
-    const savedComment = await comment.save();
+    const savedComment : IComment = await comment.save();
     return res.json(savedComment);
-  } catch (err) {
+  } catch (err: any) {
     console.warn("Error saving comment:", err);
     return handleMongoQueryError(res, err);
   }
 };
 
-const updateCommentById = async (req, res) => {
-  const { comment_id } = req.params;
-  const { content, sender } = req.body;
+export const updateCommentById = async (req: Request, res: Response): Promise<any> => {
+  const { comment_id } : { comment_id?: string } = req.params;
+  const { content, sender } : { content: string, sender: string }= req.body;
 
   try {
     if (!content || !sender) {
@@ -53,7 +54,7 @@ const updateCommentById = async (req, res) => {
         .json({ error: "Content and sender are required." });
     }
 
-    const updatedComment = await Comment.findByIdAndUpdate(
+    const updatedComment: IComment | null = await Comment.findByIdAndUpdate(
       comment_id,
       { content, sender },
       { new: true, runValidators: true }
@@ -64,32 +65,25 @@ const updateCommentById = async (req, res) => {
     }
 
     return res.json(updatedComment);
-  } catch (err) {
+  } catch (err: any) {
     console.warn("Error updating comment:", err);
     return handleMongoQueryError(res, err);
   }
 };
 
-const deleteCommentById = async (req, res) => {
-  const { comment_id } = req.params;
+export const deleteCommentById = async (req: Request, res: Response): Promise<any> => {
+  const { comment_id } : { comment_id?: string } = req.params;
 
   try {
-    const deletedComment = await Comment.findByIdAndDelete(comment_id);
+    const deletedComment: IComment | null = await Comment.findByIdAndDelete(comment_id);
 
     if (!deletedComment) {
       return res.status(404).json({ error: "Comment not found." });
     }
 
     return res.json(deletedComment);
-  } catch (err) {
+  } catch (err: any) {
     console.warn("Error deleting comment:", err);
     return handleMongoQueryError(res, err);
   }
-};
-
-module.exports = {
-  getComments,
-  saveNewComment,
-  updateCommentById,
-  deleteCommentById,
 };

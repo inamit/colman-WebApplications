@@ -78,9 +78,9 @@ POST http://localhost:3000/users/login
 Content-Type: application/json
 
 {
-    "username": "test",
-    "email": "aaaa@g.com",
-    "password": "dsav"
+    "username": "new user",
+    "email": "newUser@gmail.com",
+    "password": "myPassword"
 }
 
 ### Logout for user
