@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import * as usersController from "../controllers/users_controller";
+import usersController from "../controllers/users_controller";
 
 router.get("/", usersController.getAllUsers)
 router.post("/", usersController.registerNewUser);
