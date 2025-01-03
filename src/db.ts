@@ -19,7 +19,7 @@ export const handleMongoQueryError = (
   const duplicateKeyErrorCode = 11000;
 
   if (err instanceof MongoError && err?.code === duplicateKeyErrorCode) {
-    return res.status(400).json({ error: "Resource already exist" });
+    return res.status(400).json({ error: "Resource already exists" });
   } else if (
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.CastError

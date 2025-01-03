@@ -1,14 +1,15 @@
-import mongoose, { Schema, Types } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 import bcrypt from "bcrypt";
+import { log } from "console";
 
 export interface IUser {
-  _id: Types.ObjectId,
+  _id: Types.ObjectId;
   username: string;
   email: string;
   password: string;
 }
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema({
   username: {
     type: String,
     required: true,
@@ -18,10 +19,10 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     validate: {
-      validator: function (v: string) {
+      validator: function (v: any) {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
       },
-      message: (props: { value: string }) => `${props.value} is not a valid email address!`,
+      message: (props: any) => `${props.value} is not a valid email address!`,
     },
   },
   password: {
@@ -31,13 +32,15 @@ const userSchema = new Schema<IUser>({
 });
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    const workFactor = 10;
-    this.password = await bcrypt.hash(this.password, workFactor);
-  }
+  this.password = await hashPassword(this.password);
   next();
 });
 
-const User = mongoose.model<IUser>("User", userSchema);
+export const hashPassword = async (password: any) => {
+  const workFactor = 10;
+  return await bcrypt.hash(password, workFactor);
+};
+
+const User = model("User", userSchema);
 
 export default User;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import User from "../models/users_model";
+import User, { hashPassword } from "../models/users_model";
 import token from "../utilities/token";
 import bcrypt from "bcrypt";
 
@@ -50,20 +50,17 @@ const registerNewUser = async (req: Request, res: Response): Promise<any> => {
 
 const updateUserById = async (req: Request, res: Response): Promise<any> => {
   const { user_id } = req.params;
-  const { username, email, password } = req.body;
+  const updates = req.body;
 
   try {
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username, email, and password are required." });
+    if (updates.password) {
+      updates.password = await hashPassword(updates.password);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      user_id,
-      { username, email, password },
-      { new: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(user_id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
