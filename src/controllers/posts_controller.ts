@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import Post, { IPost } from "../models/posts_model";
+import Post, { IPost, POST_RESOURCE_NAME } from "../models/posts_model";
 
-export const getPosts = async (req: Request, res: Response): Promise<any> => {
+const getPosts = async (req: Request, res: Response): Promise<any> => {
   const { sender }: { sender?: string } = req.query;
 
   try {
-    let posts: IPost[] | null = await (sender ? Post.find({ sender: sender }) : Post.find());
+    let posts: IPost[] | null = await (sender
+      ? Post.find({ sender: sender })
+      : Post.find());
     return res.json(posts);
   } catch (err: any) {
     console.warn("Error fetching posts:", err);
@@ -14,7 +16,10 @@ export const getPosts = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export const saveNewPost = async (req: Request, res: Response): Promise<any> => {
+const saveNewPost = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
     const post = new Post({
       content: req.body.content,
@@ -24,11 +29,14 @@ export const saveNewPost = async (req: Request, res: Response): Promise<any> => 
     return res.json(savedPost);
   } catch (err: any) {
     console.warn("Error saving post:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, POST_RESOURCE_NAME);
   }
 };
 
-export const getPostById = async (req: Request, res: Response): Promise<any> => {
+const getPostById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { post_id }: { post_id?: string } = req.params;
 
   try {
@@ -45,13 +53,18 @@ export const getPostById = async (req: Request, res: Response): Promise<any> => 
   }
 };
 
-export const updatePostById = async (req: Request, res: Response): Promise<any> => {
+const updatePostById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { post_id }: { post_id?: string } = req.params;
   const { content, sender }: { content?: string; sender?: string } = req.body;
 
   try {
     if (!content || !sender) {
-      return res.status(400).json({ error: "Content and sender are required." });
+      return res
+        .status(400)
+        .json({ error: "Content and sender are required." });
     }
 
     const updatedPost: IPost | null = await Post.findByIdAndUpdate(
@@ -67,6 +80,13 @@ export const updatePostById = async (req: Request, res: Response): Promise<any> 
     return res.json(updatedPost);
   } catch (err: any) {
     console.warn("Error updating post:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, POST_RESOURCE_NAME);
   }
+};
+
+export default {
+  getPosts,
+  saveNewPost,
+  getPostById,
+  updatePostById,
 };

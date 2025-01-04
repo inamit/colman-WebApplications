@@ -1,7 +1,7 @@
 import ms from "ms";
 import jwt from "jsonwebtoken";
 import { Response } from "express";
-import { IUser } from '../models/users_model';
+import { IUser } from "../models/users_model";
 
 export const generateTokens = async (user: IUser) => {
     const accessToken = jwt.sign({ "_id": user._id }, String(process.env.TOKEN_SECRET), { expiresIn: ms(Number(process.env.ACCESS_TOKEN_EXPIRATION_MILLISECONDS)) });

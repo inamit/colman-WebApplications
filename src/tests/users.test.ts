@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import request from 'supertest';
-import initApp from '../server';
-import mongoose from 'mongoose';
-import { Express } from 'express';
-import usersModel, { IUser } from '../models/users_model';
+import request from "supertest";
+import initApp from "../server";
+import mongoose from "mongoose";
+import { Express } from "express";
+import usersModel, { IUser } from "../models/users_model";
 
 let app: Express; 
 
@@ -66,11 +66,11 @@ describe("POST /users", () => {
     it("should register new user", async () => {
         const username = "Benli";
         const email = "amitinbar@gmail.com";
-        const password = "myPassword"
+    const password = "myPassword";
         const response = await request(app).post("/users").send({
             username,
             email,
-            password
+      password,
         });
     
         expect(response.statusCode).toBe(200);
@@ -79,13 +79,18 @@ describe("POST /users", () => {
         expect(response.body.email).toBe(email);
     });
 
-    it.each([{ username: "No username" }, { email: "No email" }, { password: "No password" }, {}])(
+  it.each([
+    { username: "No username" },
+    { email: "No email" },
+    { password: "No password" },
+    {},
+  ])(
         "should return 400 when parameter is missing (%o)",
-        async ({ username, email, password}) => {
+    async ({ username, email, password }) => {
             const response = await request(app).post("/posts").send({
                 username,
                 email,
-                password
+        password,
             });
 
             expect(response.statusCode).toBe(400);
@@ -110,7 +115,7 @@ describe("POST /users", () => {
         });
 
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty("error", "username already exsits.");
+    expect(response.body).toHaveProperty("error", "User already exists");
     });
 
     it("should return 400 for invalid email", async () => {
@@ -125,7 +130,10 @@ describe("POST /users", () => {
         });
 
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty("error", "email is not valid. Please enter valid email address");
+    expect(response.body).toHaveProperty(
+      "error",
+      "User validation failed: email: invalid-email is not a valid email address!"
+    );
     });
 });
 
@@ -167,11 +175,11 @@ describe("PUT /users/:user_id", () => {
 
     it("should return 404 when user is not found", async () => {
         const response = await request(app)
-        .put("/users/6749f45d349ed9de3a163155")
+      .patch("/users/6749f45d349ed9de3a163155")
         .send({
             username: "Updated user",
             email: "updated@gmail.com",
-            password: "updated"
+        password: "updated",
         });
 
         expect(response.statusCode).toBe(404);
@@ -179,11 +187,10 @@ describe("PUT /users/:user_id", () => {
     });
 
     it("should return 400 when user_id is invalid", async () => {
-        const response = await request(app).put("/users/invalid_id")
-        .send({
+    const response = await request(app).patch("/users/invalid_id").send({
             username: "Updated user",
             email: "updated@gmail.com",
-            password: "updated"
+      password: "updated",
         });
 
         expect(response.statusCode).toBe(400);
@@ -191,15 +198,19 @@ describe("PUT /users/:user_id", () => {
     });
 
     it("should update user by id", async () => {
-        const post = savedUsers[0];
+    const user = savedUsers[0];
         const updatedUsername = "Updated username";
         const updatedEmail = "updated@gmail.com";
-        const updatedPassword = "password"
-        const response: any = await request(app)
-        .put(`/posts/${post._id}`)
-        .send({ username: updatedUsername, email: updatedEmail, password: updatedPassword });
-
-        const isMatchedpassword = await bcrypt.compare(updatedPassword, response?.password);
+    const updatedPassword = "password123";
+    const response: any = await request(app).patch(`/users/${user._id}`).send({
+      username: updatedUsername,
+      email: updatedEmail,
+      password: updatedPassword,
+    });
+    const isMatchedpassword = await bcrypt.compare(
+      updatedPassword,
+      response.body.password
+    );
         expect(response.statusCode).toBe(200);
         expect(response.body.username).toBe(updatedUsername);
         expect(response.body.email).toBe(updatedEmail);
@@ -237,9 +248,9 @@ describe('POST /users/login', () => {
             password
         });
 
-        expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty("error");
-    });
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("error");
+  });
 });
 
 describe('POST /users/logout', () => {
