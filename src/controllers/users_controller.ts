@@ -5,7 +5,7 @@ import User, {
   IUser,
   USER_RESOURCE_NAME,
 } from "../models/users_model";
-import * as token from "../utilities/token";
+import token from "../utilities/token";
 import bcrypt from "bcrypt";
 
 const getAllUsers = async (req: Request, res: Response): Promise<any> => {
