@@ -50,7 +50,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ error: "wrong credentials. Please try again."});
     }
     const {accessToken, refreshToken}: { accessToken: string; refreshToken: string }  = await token.generateTokens(existingUser);
-    token.updateCookies(accessToken, refreshToken, res);
+    token.updateHeaders(accessToken, refreshToken, res);
     return res.status(200).json({message: "logged in successfully."});
   } catch (err) {
     console.warn("Error while logging in:", err);
@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 export const logout = async (req: Request, res: Response): Promise<any> => {
   try{
-    token.clearCookies(res);
+    token.clearHeaders(res);
     return res.status(200).json({message: "logged out successfully."});
   } catch (err) {
     console.warn("Error while logging out:", err);

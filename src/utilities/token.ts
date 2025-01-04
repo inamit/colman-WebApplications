@@ -10,33 +10,12 @@ export const generateTokens = async (user: IUser) => {
     return {accessToken, refreshToken};
 }
 
-export const updateCookies = (accessToken: string, refreshToken: string, res: Response) => {
-    res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: Number(process.env.ACCESS_TOKEN_EXPIRATION_MILLISECONDS),
-
-      });
-    
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production', 
-        sameSite: 'strict', 
-        maxAge: Number(process.env.REFRESH_TOKEN_EXPIRATION_MILLISECONDS)
-      });
+export const updateHeaders = (accessToken: string, refreshToken: string, res: Response) => {
+    res.setHeader('accessToken', accessToken);
+    res.setHeader('refreshToken', refreshToken);
 }
 
-export const clearCookies = (res: Response) => {
-    res.clearCookie('accessToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-    
-      res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
+export const clearHeaders = (res: Response) => {
+    res.removeHeader('accessToken');
+    res.removeHeader('refreshToken');
 }
