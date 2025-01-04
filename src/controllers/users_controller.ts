@@ -136,7 +136,7 @@ const login = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export const logout = async (req: Request, res: Response): Promise<any> => {
+const logout = async (req: Request, res: Response): Promise<any> => {
   try{
     return token.clearTokens(res);
   } catch (err) {
