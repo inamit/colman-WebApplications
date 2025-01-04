@@ -14,12 +14,13 @@ export const connectDB = async (): Promise<void> => {
 
 export const handleMongoQueryError = (
   res: Response,
-  err: MongoError | mongoose.Error
+  err: MongoError | mongoose.Error,
+  resourceName?: string
 ): Response => {
   const duplicateKeyErrorCode = 11000;
 
   if (err instanceof MongoError && err?.code === duplicateKeyErrorCode) {
-    return res.status(400).json({ error: "Resource already exists" });
+    return res.status(400).json({ error: `${resourceName} already exists` });
   } else if (
     err instanceof mongoose.Error.ValidationError ||
     err instanceof mongoose.Error.CastError

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import User, { hashPassword, IUser } from "../models/users_model";
+import User, {
+  hashPassword,
+  IUser,
+  USER_RESOURCE_NAME,
+} from "../models/users_model";
 import token from "../utilities/token";
 import bcrypt from "bcrypt";
 
@@ -48,7 +52,7 @@ const registerNewUser = async (req: Request, res: Response): Promise<any> => {
     return res.json(savedUser);
   } catch (err: any) {
     console.warn("Error registering user:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, USER_RESOURCE_NAME);
   }
 };
 
@@ -77,7 +81,7 @@ const updateUserById = async (req: Request, res: Response): Promise<any> => {
     return res.json(updatedUser);
   } catch (err: any) {
     console.warn("Error updating user:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, USER_RESOURCE_NAME);
   }
 };
 
