@@ -15,7 +15,7 @@ const getAllUsers = async (req: Request, res: Response): Promise<any> => {
 };
 
 const getUserById = async (req: Request, res: Response): Promise<any> => {
-  const { user_id } = req.params;
+  const { user_id }: { user_id?: string } = req.params;
 
   try {
     const user: IUser | null = await User.findById(user_id);
@@ -33,7 +33,11 @@ const getUserById = async (req: Request, res: Response): Promise<any> => {
 
 const registerNewUser = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { username, email, password } = req.body;
+    const {
+      username,
+      email,
+      password,
+    }: { username: string; email: string; password: string } = req.body;
     const user = new User({
       username,
       email,
@@ -49,18 +53,22 @@ const registerNewUser = async (req: Request, res: Response): Promise<any> => {
 };
 
 const updateUserById = async (req: Request, res: Response): Promise<any> => {
-  const { user_id } = req.params;
-  const updates = req.body;
+  const { user_id }: { user_id?: string } = req.params;
+  const updates: Partial<IUser> = req.body;
 
   try {
     if (updates.password) {
       updates.password = await hashPassword(updates.password);
     }
 
-    const updatedUser: IUser | null = await User.findByIdAndUpdate(user_id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedUser: IUser | null = await User.findByIdAndUpdate(
+      user_id,
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -74,7 +82,7 @@ const updateUserById = async (req: Request, res: Response): Promise<any> => {
 };
 
 const deleteUserById = async (req: Request, res: Response): Promise<any> => {
-  const { user_id } = req.params;
+  const { user_id }: { user_id?: string } = req.params;
 
   try {
     const deletedUser: IUser | null = await User.findByIdAndDelete(user_id);
@@ -92,7 +100,8 @@ const deleteUserById = async (req: Request, res: Response): Promise<any> => {
 
 const login = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { username, password } = req.body;
+    const { username, password }: { username: string; password: string } =
+      req.body;
     const existingUser: IUser | null = await User.findOne({ username });
 
     if (!existingUser) {
@@ -109,9 +118,11 @@ const login = async (req: Request, res: Response): Promise<any> => {
         .status(400)
         .json({ error: "wrong credentials. Please try again." });
     }
-    const { accessToken, refreshToken } = await token.generateTokens(
-      existingUser
-    );
+    const {
+      accessToken,
+      refreshToken,
+    }: { accessToken: string; refreshToken: string } =
+      await token.generateTokens(existingUser);
     token.updateCookies(accessToken, refreshToken, res);
     return res.status(200).json({ message: "logged in successfully." });
   } catch (err) {
