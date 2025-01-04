@@ -17,6 +17,7 @@ const postSchema = new Schema<IPost>({
   },
 });
 
-const Post = mongoose.model<IPost>("Post", postSchema);
+export const POST_RESOURCE_NAME = "Post";
+const Post = mongoose.model<IPost>(POST_RESOURCE_NAME, postSchema);
 
 export default Post;

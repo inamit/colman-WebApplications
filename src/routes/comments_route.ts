@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router: Router = Router();
-import * as commentsController from "../controllers/comments_controller";
+import commentsController from "../controllers/comments_controller";
 
 router.post("/", commentsController.saveNewComment);
 router.get("/", commentsController.getComments);
