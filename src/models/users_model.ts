@@ -8,7 +8,7 @@ export interface IUser {
   password: string;
 }
 
-const userSchema = new Schema({
+const userSchema = new Schema<IUser>({
   username: {
     type: String,
     required: true,
@@ -18,10 +18,11 @@ const userSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator: function (v: any) {
+      validator: function (v: string) {
         return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v);
       },
-      message: (props: any) => `${props.value} is not a valid email address!`,
+      message: (props: { value: string }) =>
+        `${props.value} is not a valid email address!`,
     },
   },
   password: {
@@ -40,6 +41,6 @@ export const hashPassword = async (password: any) => {
   return await bcrypt.hash(password, workFactor);
 };
 
-const User = model("User", userSchema);
+const User = model<IUser>("User", userSchema);
 
 export default User;
