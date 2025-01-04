@@ -12,6 +12,23 @@ export const connectDB = async (): Promise<void> => {
   }
 };
 
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Error:
+ *      type: object
+ *      properties:
+ *        error:
+ *          type: string
+ *    UnexpectedError:
+ *      type: object
+ *      properties:
+ *        error:
+ *          type: string
+ *          example: An error occurred.
+ */
+
 export const handleMongoQueryError = (
   res: Response,
   err: MongoError | mongoose.Error
