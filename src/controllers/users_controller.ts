@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import User, { hashPassword } from "../models/users_model";
+import User, { hashPassword, IUser } from "../models/users_model";
 import token from "../utilities/token";
 import bcrypt from "bcrypt";
 
 const getAllUsers = async (req: Request, res: Response): Promise<any> => {
   try {
-    const users = await User.find();
+    const users: IUser[] | null = await User.find();
     return res.json(users);
   } catch (err: any) {
     console.warn("Error fetching users:", err);
@@ -18,7 +18,7 @@ const getUserById = async (req: Request, res: Response): Promise<any> => {
   const { user_id } = req.params;
 
   try {
-    const user = await User.findById(user_id);
+    const user: IUser | null = await User.findById(user_id);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -40,7 +40,7 @@ const registerNewUser = async (req: Request, res: Response): Promise<any> => {
       password,
     });
 
-    const savedUser = await user.save();
+    const savedUser: IUser = await user.save();
     return res.json(savedUser);
   } catch (err: any) {
     console.warn("Error registering user:", err);
@@ -57,7 +57,7 @@ const updateUserById = async (req: Request, res: Response): Promise<any> => {
       updates.password = await hashPassword(updates.password);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(user_id, updates, {
+    const updatedUser: IUser | null = await User.findByIdAndUpdate(user_id, updates, {
       new: true,
       runValidators: true,
     });
@@ -77,7 +77,7 @@ const deleteUserById = async (req: Request, res: Response): Promise<any> => {
   const { user_id } = req.params;
 
   try {
-    const deletedUser = await User.findByIdAndDelete(user_id);
+    const deletedUser: IUser | null = await User.findByIdAndDelete(user_id);
 
     if (!deletedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -93,7 +93,7 @@ const deleteUserById = async (req: Request, res: Response): Promise<any> => {
 const login = async (req: Request, res: Response): Promise<any> => {
   try {
     const { username, password } = req.body;
-    const existingUser = await User.findOne({ username });
+    const existingUser: IUser | null = await User.findOne({ username });
 
     if (!existingUser) {
       return res.status(404).json({ error: "User not found." });
