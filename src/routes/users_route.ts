@@ -248,15 +248,20 @@ router.delete("/:user_id", usersController.deleteUserById);
  *     responses:
  *       '200':
  *         description: Successful operation
- *         headers:
- *           Set-Cookie:
- *             schema:
- *               type: string
- *               example: 'accessToken=aaaaaaaaa; refreshToken=abcdabcd; Max-Age=10; Path=/; Expires=Sat, 04 Jan 2025 12:31:04 GMT; HttpOnly; SameSite=Strict'
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *              type: object
+ *              properties:
+ *                  accessToken:
+ *                      type: string
+ *                      example: "Bearer aaaaaaa"
+ *                  refreshToken:
+ *                      type: string
+ *                      example: "Bearer aaaaaaa"
+ *                  message:
+ *                      type: string
+ *                      example: "logged in successfully."
  *       '400':
  *         description: Invalid input
  *         content:
