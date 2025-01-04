@@ -212,7 +212,7 @@ describe('POST /users/login', () => {
     beforeEach(async () => {
         savedUsers = await usersModel.create(testUsers);
     });
-    it('should return a response with a non-empty cookie after user is logged in', async () => {
+    it('should return a response with a non-empty token after user is logged in', async () => {
         const username = "Benli";
         const email = "first@gmail.com";
         const password = "password"
@@ -221,13 +221,9 @@ describe('POST /users/login', () => {
             email,
             password
         });
-        const cookies: any= response.headers['set-cookie'];
-        expect(cookies).toBeDefined();
-        expect(cookies.length).toBeGreaterThan(0);
-        const accessTokenCookie = cookies.find((cookie: any) => cookie.startsWith('accessToken='));
-        expect(accessTokenCookie).toBeDefined();
-        const cookieValue = accessTokenCookie.split('=')[1].split(';')[0];
-        expect(cookieValue).toBeTruthy();
+        const token = response.headers['authorization'];
+        expect(token).toBeDefined();
+        expect(token).toMatch(/^Bearer\s.+/);
     });
     it("should return 400 when wrong credentials", async () => {
         const username = "Benli";
@@ -245,14 +241,9 @@ describe('POST /users/login', () => {
 });
 
 describe('POST /users/logout', () => {
-    it('should return a response with a empty cookie after user is logged out', async () => {
+    it('should return a response with an empty token after user is logged out', async () => {
         const response = await request(app).post("/users/logout").send({});
-        const cookies: any = response.headers['set-cookie'];
-        expect(cookies).toBeDefined();
-        expect(cookies.length).toBeGreaterThan(0);
-        const accessTokenCookie = cookies.find((cookie: any) => cookie.startsWith('accessToken='));
-        expect(accessTokenCookie).toBeDefined();
-        const cookieValue = accessTokenCookie.split('=')[1].split(';')[0];
-        expect(cookieValue).toBe('')
+        const token = response.headers['authorization'];
+        expect(token).toBeUndefined();
     });
 });

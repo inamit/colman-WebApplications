@@ -11,11 +11,11 @@ export const generateTokens = async (user: IUser) => {
 }
 
 export const updateHeaders = (accessToken: string, refreshToken: string, res: Response) => {
-    res.setHeader('accessToken', accessToken);
-    res.setHeader('refreshToken', refreshToken);
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+    res.setHeader('Refresh-Token', refreshToken);
 }
 
 export const clearHeaders = (res: Response) => {
-    res.removeHeader('accessToken');
-    res.removeHeader('refreshToken');
+    res.removeHeader('Authorization');
+    res.removeHeader('Refresh-Token');
 }
