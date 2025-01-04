@@ -221,8 +221,7 @@ describe('POST /users/login', () => {
             email,
             password
         });
-        const accessToken = response.headers['authorization'];
-        const refreshToken = response.headers['refresh-token'];
+        const { accessToken, refreshToken } = response.body;
         expect(accessToken).toBeDefined();
         expect(accessToken).toMatch(/^Bearer\s.+/);
         expect(refreshToken).toBeDefined();
@@ -244,11 +243,10 @@ describe('POST /users/login', () => {
 });
 
 describe('POST /users/logout', () => {
-    it('should return a response with empty tokens after user is logged out', async () => {
+    it('should return a response indicating tokens are cleared after user is logged out', async () => {
         const response = await request(app).post("/users/logout").send({});
-        const accessToken = response.headers['authorization'];
-        const refreshToken = response.headers['refresh-token'];
-        expect(accessToken).toBeUndefined();
-        expect(refreshToken).toBeUndefined();
+        expect(response.statusCode).toBe(200);
+        expect(response.body).not.toHaveProperty('accessToken');
+        expect(response.body).not.toHaveProperty('refreshToken');
     });
 });
