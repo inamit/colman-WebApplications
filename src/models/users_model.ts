@@ -6,6 +6,7 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
+  refreshTokens?: string[];
 }
 
 const userSchema = new Schema<IUser>({
@@ -27,6 +28,10 @@ const userSchema = new Schema<IUser>({
   password: {
     type: String,
     required: true,
+  },
+  refreshTokens: {
+    type: [String],
+    default: [],
   },
 });
 
