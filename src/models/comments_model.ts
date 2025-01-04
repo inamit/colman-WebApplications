@@ -23,6 +23,7 @@ const commentSchema = new Schema<IComment>({
   },
 });
 
-const Comment = mongoose.model<IComment>("Comment", commentSchema);
+export const COMMENT_RESOURCE_NAME = "Comment";
+const Comment = mongoose.model<IComment>(COMMENT_RESOURCE_NAME, commentSchema);
 
 export default Comment;
