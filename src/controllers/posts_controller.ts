@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import Post, { IPost } from "../models/posts_model";
+import Post, { IPost, POST_RESOURCE_NAME } from "../models/posts_model";
 
 const getPosts = async (req: Request, res: Response): Promise<any> => {
   const { sender }: { sender?: string } = req.query;
@@ -29,7 +29,7 @@ const saveNewPost = async (
     return res.json(savedPost);
   } catch (err: any) {
     console.warn("Error saving post:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, POST_RESOURCE_NAME);
   }
 };
 
@@ -80,7 +80,7 @@ const updatePostById = async (
     return res.json(updatedPost);
   } catch (err: any) {
     console.warn("Error updating post:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, POST_RESOURCE_NAME);
   }
 };
 

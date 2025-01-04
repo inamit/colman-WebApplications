@@ -41,6 +41,7 @@ export const hashPassword = async (password: any) => {
   return await bcrypt.hash(password, workFactor);
 };
 
-const User = model<IUser>("User", userSchema);
+export const USER_RESOURCE_NAME = "User";
+const User = model<IUser>(USER_RESOURCE_NAME, userSchema);
 
 export default User;

@@ -1,7 +1,7 @@
 import Post from "../models/posts_model";
 import { Request, Response } from "express";
 import { handleMongoQueryError } from "../db";
-import Comment, { IComment } from "../models/comments_model";
+import Comment, { COMMENT_RESOURCE_NAME, IComment } from "../models/comments_model";
 
 const getComments = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -40,7 +40,7 @@ const saveNewComment = async (req: Request, res: Response): Promise<any> => {
     return res.json(savedComment);
   } catch (err: any) {
     console.warn("Error saving comment:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, COMMENT_RESOURCE_NAME);
   }
 };
 
@@ -68,7 +68,7 @@ const updateCommentById = async (req: Request, res: Response): Promise<any> => {
     return res.json(updatedComment);
   } catch (err: any) {
     console.warn("Error updating comment:", err);
-    return handleMongoQueryError(res, err);
+    return handleMongoQueryError(res, err, COMMENT_RESOURCE_NAME);
   }
 };
 

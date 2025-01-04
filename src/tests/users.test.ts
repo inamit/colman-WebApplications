@@ -115,7 +115,7 @@ describe("POST /users", () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.body).toHaveProperty("error", "Resource already exists");
+    expect(response.body).toHaveProperty("error", "User already exists");
   });
 
   it("should return 400 for invalid email", async () => {
