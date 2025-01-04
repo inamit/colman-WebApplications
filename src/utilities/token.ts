@@ -12,7 +12,7 @@ export const generateTokens = async (user: IUser) => {
 
 export const updateHeaders = (accessToken: string, refreshToken: string, res: Response) => {
     res.setHeader('Authorization', `Bearer ${accessToken}`);
-    res.setHeader('Refresh-Token', refreshToken);
+    res.setHeader('Refresh-Token', `Bearer ${refreshToken}`);
 }
 
 export const clearHeaders = (res: Response) => {

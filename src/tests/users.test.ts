@@ -212,7 +212,7 @@ describe('POST /users/login', () => {
     beforeEach(async () => {
         savedUsers = await usersModel.create(testUsers);
     });
-    it('should return a response with a non-empty token after user is logged in', async () => {
+    it('should return a response with non-empty tokens after user is logged in', async () => {
         const username = "Benli";
         const email = "first@gmail.com";
         const password = "password"
@@ -221,9 +221,12 @@ describe('POST /users/login', () => {
             email,
             password
         });
-        const token = response.headers['authorization'];
-        expect(token).toBeDefined();
-        expect(token).toMatch(/^Bearer\s.+/);
+        const accessToken = response.headers['authorization'];
+        const refreshToken = response.headers['refresh-token'];
+        expect(accessToken).toBeDefined();
+        expect(accessToken).toMatch(/^Bearer\s.+/);
+        expect(refreshToken).toBeDefined();
+        expect(refreshToken).toMatch(/^Bearer\s.+/);
     });
     it("should return 400 when wrong credentials", async () => {
         const username = "Benli";
@@ -241,9 +244,11 @@ describe('POST /users/login', () => {
 });
 
 describe('POST /users/logout', () => {
-    it('should return a response with an empty token after user is logged out', async () => {
+    it('should return a response with empty tokens after user is logged out', async () => {
         const response = await request(app).post("/users/logout").send({});
-        const token = response.headers['authorization'];
-        expect(token).toBeUndefined();
+        const accessToken = response.headers['authorization'];
+        const refreshToken = response.headers['refresh-token'];
+        expect(accessToken).toBeUndefined();
+        expect(refreshToken).toBeUndefined();
     });
 });
