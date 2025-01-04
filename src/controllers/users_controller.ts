@@ -127,8 +127,7 @@ const login = async (req: Request, res: Response): Promise<any> => {
       refreshToken,
     }: { accessToken: string; refreshToken: string } =
       await token.generateTokens(existingUser);
-    token.updateCookies(accessToken, refreshToken, res);
-    return res.status(200).json({ message: "logged in successfully." });
+    return token.setTokens(accessToken, refreshToken, res);
   } catch (err) {
     console.warn("Error while logging in:", err);
     return res
@@ -138,9 +137,8 @@ const login = async (req: Request, res: Response): Promise<any> => {
 };
 
 const logout = async (req: Request, res: Response): Promise<any> => {
-  try {
-    token.clearCookies(res);
-    return res.status(200).json({ message: "logged out successfully." });
+  try{
+    return token.clearTokens(res);
   } catch (err) {
     console.warn("Error while logging out:", err);
     return res
