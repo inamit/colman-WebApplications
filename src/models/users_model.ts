@@ -1,4 +1,4 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser {
@@ -45,6 +45,12 @@ export const hashPassword = async (password: any) => {
   const workFactor = 10;
   return await bcrypt.hash(password, workFactor);
 };
+
+export type tUser = Document<unknown, {}, IUser> & IUser & Required<{
+  _id: string;
+}> & {
+  __v: number;
+}
 
 export const USER_RESOURCE_NAME = "User";
 const User = model<IUser>(USER_RESOURCE_NAME, userSchema);
