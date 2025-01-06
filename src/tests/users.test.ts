@@ -233,7 +233,6 @@ describe("POST /users/login", () => {
       username: testUsers[0].username,
       password: testUsers[0].password,
     });
-    console.log(response.body);
     const { accessToken, refreshToken } = response.body;
     expect(accessToken).toBeDefined();
     expect(refreshToken).toBeDefined();

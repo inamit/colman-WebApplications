@@ -23,7 +23,7 @@ const saveNewPost = async (
   try {
     const post = new Post({
       content: req.body.content,
-      sender: req.body.sender,
+      sender: req.params.userId,
     });
     const savedPost: IPost = await post.save();
     return res.json(savedPost);
@@ -58,18 +58,18 @@ const updatePostById = async (
   res: Response
 ): Promise<any> => {
   const { post_id }: { post_id?: string } = req.params;
-  const { content, sender }: { content?: string; sender?: string } = req.body;
+  const { content }: { content?: string; } = req.body;
 
   try {
-    if (!content || !sender) {
+    if (!content) {
       return res
         .status(400)
-        .json({ error: "Content and sender are required." });
+        .json({ error: "Content is required." });
     }
 
     const updatedPost: IPost | null = await Post.findByIdAndUpdate(
       post_id,
-      { content, sender },
+      { content, sender: req.params.userId },
       { new: true, runValidators: true }
     );
 

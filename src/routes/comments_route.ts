@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router: Router = Router();
 import commentsController from "../controllers/comments_controller";
+import authMiddleware from "../utilities/authMiddleware";
 
 /**
  * @swagger
@@ -95,7 +96,7 @@ import commentsController from "../controllers/comments_controller";
  *                          schema:
  *                              $ref: '#/components/schemas/UnexpectedError'
  */
-router.post("/", commentsController.saveNewComment);
+router.post("/", authMiddleware, commentsController.saveNewComment);
 
 /**
  * @swagger
@@ -121,7 +122,7 @@ router.post("/", commentsController.saveNewComment);
  *                schema:
  *                  $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/", commentsController.getComments);
+router.get("/", authMiddleware, commentsController.getComments);
 
 /**
  * @swagger
@@ -166,7 +167,7 @@ router.get("/", commentsController.getComments);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.put("/:comment_id", commentsController.updateCommentById);
+router.put("/:comment_id", authMiddleware, commentsController.updateCommentById);
 
 /**
  * @swagger
@@ -203,6 +204,6 @@ router.put("/:comment_id", commentsController.updateCommentById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.delete("/:comment_id", commentsController.deleteCommentById);
+router.delete("/:comment_id", authMiddleware, commentsController.deleteCommentById);
 
 export default router;

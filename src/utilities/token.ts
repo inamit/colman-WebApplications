@@ -7,13 +7,13 @@ const generateTokens = async (user: IUser) => {
   const accessToken = jwt.sign(
     { _id: user._id },
     String(process.env.TOKEN_SECRET),
-    { expiresIn: ms(Number(process.env.ACCESS_TOKEN_EXPIRATION_MILLISECONDS)) }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION }
   );
   const random = Math.floor(Math.random() * 1000000).toString();
   const refreshToken = jwt.sign(
     { _id: user._id, random: random },
     String(process.env.TOKEN_SECRET),
-    { expiresIn: ms(Number(process.env.REFRESH_TOKEN_EXPIRATION_MILLISECONDS)) }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION }
   );
   return { accessToken, refreshToken };
 };
@@ -38,16 +38,16 @@ const verifyRefreshToken = (
   refreshToken: string | undefined
 ): Promise<tUser> => {
   return new Promise<tUser>((resolve, reject) => {
-    //get refresh token from body
     if (!refreshToken) {
       reject("fail");
       return;
     }
-    //verify token
+
     if (!process.env.TOKEN_SECRET) {
       reject("fail");
       return;
     }
+
     jwt.verify(
       refreshToken,
       process.env.TOKEN_SECRET,
@@ -56,10 +56,9 @@ const verifyRefreshToken = (
           reject("fail");
           return;
         }
-        //get the user id fromn token
         const userId = payload._id;
+
         try {
-          //get the user form the db
           const user: tUser | null = await User.findById(userId);
           if (!user) {
             reject("fail");

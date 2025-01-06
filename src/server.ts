@@ -31,8 +31,8 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use("/posts", authMiddleware, postsRoute);
-app.use("/comments", authMiddleware, commentsRoute);
+app.use("/posts", postsRoute);
+app.use("/comments", commentsRoute);
 app.use("/users", usersRoute);
 
 const initApp = async (): Promise<Express> => {

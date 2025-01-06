@@ -1,16 +1,18 @@
 import mongoose, { Schema, Types } from "mongoose";
+import { USER_RESOURCE_NAME } from "./users_model";
+import { POST_RESOURCE_NAME } from "./posts_model";
 
 export interface IComment {
   _id: Types.ObjectId;
   postID: Types.ObjectId;
   content: string;
-  sender: string;
+  sender: Types.ObjectId;
 }
 
 const commentSchema = new Schema<IComment>({
   postID: {
     type: Schema.Types.ObjectId,
-    ref: "Post",
+    ref: POST_RESOURCE_NAME,
     required: true,
   },
   content: {
@@ -18,7 +20,8 @@ const commentSchema = new Schema<IComment>({
     required: true,
   },
   sender: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: USER_RESOURCE_NAME,
     required: true,
   },
 });

@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router: Router = Router();
 import postsController from "../controllers/posts_controller";
+import authMiddleware from "../utilities/authMiddleware";
 
 /**
  * @swagger
@@ -69,7 +70,7 @@ import postsController from "../controllers/posts_controller";
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/", postsController.getPosts);
+router.get("/", authMiddleware, postsController.getPosts);
 
 /**
  * @swagger
@@ -108,7 +109,7 @@ router.get("/", postsController.getPosts);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.post("/", postsController.saveNewPost);
+router.post("/", authMiddleware, postsController.saveNewPost);
 
 /**
  * @swagger
@@ -145,7 +146,7 @@ router.post("/", postsController.saveNewPost);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/:post_id", postsController.getPostById);
+router.get("/:post_id", authMiddleware, postsController.getPostById);
 
 /**
  * @swagger
@@ -190,6 +191,6 @@ router.get("/:post_id", postsController.getPostById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.put("/:post_id", postsController.updatePostById);
+router.put("/:post_id", authMiddleware, postsController.updatePostById);
 
 export default router;
