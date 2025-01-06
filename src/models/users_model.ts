@@ -2,7 +2,7 @@ import { Schema, Types, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser {
-  _id: Types.ObjectId;
+  _id?: Types.ObjectId;
   username: string;
   email: string;
   password: string;

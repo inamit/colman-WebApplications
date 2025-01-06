@@ -137,13 +137,40 @@ const login = async (req: Request, res: Response): Promise<any> => {
 };
 
 const logout = async (req: Request, res: Response): Promise<any> => {
-  try{
+  try {
     return token.clearTokens(res);
   } catch (err) {
     console.warn("Error while logging out:", err);
     return res
       .status(500)
       .json({ error: "An error occurred while logging out.", err });
+  }
+};
+
+const refresh = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const user = await token.verifyRefreshToken(req.body.refreshToken);
+    if (!user) {
+      return res.status(400).send("fail");
+    }
+    const { refreshToken, accessToken } = await token.generateTokens(user);
+
+    if (!refreshToken || !accessToken) {
+      return res.status(500).send("Server Error");
+    }
+    if (!user.refreshTokens) {
+      user.refreshTokens = [];
+    }
+    user.refreshTokens.push(refreshToken);
+    await user.save();
+
+    return res.send({
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      _id: user._id,
+    });
+  } catch (err) {
+    return res.status(400).send("fail");
   }
 };
 
@@ -155,4 +182,5 @@ export default {
   deleteUserById,
   login,
   logout,
+  refresh,
 };

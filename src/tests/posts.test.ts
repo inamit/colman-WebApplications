@@ -6,6 +6,11 @@ import postsModel, { IPost } from '../models/posts_model';
 
 let app: Express; 
 
+jest.mock("../utilities/authMiddleware", () => ({
+  __esModule: true,
+  default: jest.fn((req, res, next) => next()),
+}));
+
 beforeAll(async () => {
   app = await initApp();
 });
