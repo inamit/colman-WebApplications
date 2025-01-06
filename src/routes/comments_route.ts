@@ -39,8 +39,6 @@ import authMiddleware from "../utilities/authMiddleware";
  *     properties:
  *       content:
  *         type: string
- *       sender:
- *         type: string
  *  requestBodies:
  *      Comment:
  *          description: Comment object input
@@ -57,6 +55,8 @@ import authMiddleware from "../utilities/authMiddleware";
  *      post:
  *          tags:
  *              - Comment
+ *          security:
+ *              - bearerAuth: []
  *          summary: Add a new comment
  *          description: Add a new comment
  *          operationId: addComment
@@ -105,6 +105,8 @@ router.post("/", authMiddleware, commentsController.saveNewComment);
  *      get:
  *        tags:
  *          - Comment
+ *        security:
+ *          - bearerAuth: []
  *        summary: Get all comments
  *        description: Get all comments from the database
  *        operationId: getAllComments
@@ -131,6 +133,8 @@ router.get("/", authMiddleware, commentsController.getComments);
  *   put:
  *     tags:
  *       - Comment
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the entire comment with form data
  *     operationId: updateComment
  *     parameters:
@@ -176,6 +180,8 @@ router.put("/:comment_id", authMiddleware, commentsController.updateCommentById)
  *   delete:
  *     tags:
  *       - Comment
+ *     security:
+ *       - bearerAuth: []
  *     summary: Delete comment by ID
  *     description: Deletes a comment
  *     operationId: deleteCommentByID

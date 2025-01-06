@@ -35,8 +35,6 @@ import authMiddleware from "../utilities/authMiddleware";
  *          properties:
  *              content:
  *                  type: string
- *              sender:
- *                  type: string
  *  requestBodies:
  *      Post:
  *          description: Post object input
@@ -53,6 +51,8 @@ import authMiddleware from "../utilities/authMiddleware";
  *   get:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all posts
  *     description: Get all posts from the database
  *     operationId: getAllPosts
@@ -79,6 +79,8 @@ router.get("/", authMiddleware, postsController.getPosts);
  *   post:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Add a new post
  *     description: Add a new post
  *     operationId: addPost
@@ -118,6 +120,8 @@ router.post("/", authMiddleware, postsController.saveNewPost);
  *   get:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get post by postID
  *     description: Returns a single post
  *     operationId: getPostByID
@@ -155,6 +159,8 @@ router.get("/:post_id", authMiddleware, postsController.getPostById);
  *   put:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the entire post with form data
  *     operationId: updatePost
  *     parameters:

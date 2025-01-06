@@ -52,6 +52,8 @@ import authMiddleware from "../utilities/authMiddleware";
  *   get:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all users
  *     description: Get all users from the database
  *     operationId: getAllUsers
@@ -117,6 +119,8 @@ router.post("/", usersController.registerNewUser);
  *   get:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get User by userID
  *     description: Returns a single user
  *     operationId: getUserByID
@@ -154,6 +158,8 @@ router.get("/:user_id", authMiddleware, usersController.getUserById);
  *   patch:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the user's data
  *     operationId: updateUser
  *     parameters:
@@ -199,6 +205,8 @@ router.patch("/:user_id", authMiddleware, usersController.updateUserById);
  *   delete:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Delete user by ID
  *     description: Deletes a user
  *     operationId: deleteUserByID
@@ -318,6 +326,8 @@ router.post("/logout", usersController.logout);
  *     description: Refresh access and refresh tokens using the provided refresh token
  *     tags:
  *       - Auth
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
