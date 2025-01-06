@@ -1,7 +1,7 @@
 import ms from "ms";
 import jwt from "jsonwebtoken";
-import { NextFunction, Request, Response } from "express";
-import User, { IUser, tUser } from "../models/users_model";
+import { Response } from "express";
+import User, { IUser } from "../models/users_model";
 
 const generateTokens = async (user: IUser) => {
   const accessToken = jwt.sign(
@@ -36,8 +36,8 @@ const clearTokens = (res: Response) => {
 
 const verifyRefreshToken = (
   refreshToken: string | undefined
-): Promise<tUser> => {
-  return new Promise<tUser>((resolve, reject) => {
+): Promise<IUser> => {
+  return new Promise<IUser>((resolve, reject) => {
     if (!refreshToken) {
       reject("fail");
       return;
@@ -59,7 +59,7 @@ const verifyRefreshToken = (
         const userId = payload._id;
 
         try {
-          const user: tUser | null = await User.findById(userId);
+          const user: IUser | null = await User.findById(userId);
           if (!user) {
             reject("fail");
             return;
@@ -69,7 +69,9 @@ const verifyRefreshToken = (
             !user.refreshTokens.includes(refreshToken)
           ) {
             user.refreshTokens = [];
-            await user.save();
+            await User.findByIdAndUpdate(user._id, {
+              refreshTokens: user.refreshTokens,
+            });
             reject("fail");
             return;
           }

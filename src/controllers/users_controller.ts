@@ -3,7 +3,6 @@ import { handleMongoQueryError } from "../db";
 import User, {
   hashPassword,
   IUser,
-  tUser,
   USER_RESOURCE_NAME,
 } from "../models/users_model";
 import token from "../utilities/token";
@@ -107,7 +106,7 @@ const login = async (req: Request, res: Response): Promise<any> => {
   try {
     const { username, password }: { username: string; password: string } =
       req.body;
-    const existingUser: tUser | null = await User.findOne({ username });
+    const existingUser: IUser | null = await User.findOne({ username });
 
     if (!existingUser) {
       return res.status(404).json({ error: "User not found." });
@@ -133,7 +132,9 @@ const login = async (req: Request, res: Response): Promise<any> => {
       existingUser.refreshTokens = [];
     }
     existingUser.refreshTokens.push(refreshToken);
-    await existingUser.save();
+    await User.findByIdAndUpdate(existingUser._id, {
+      refreshTokens: existingUser.refreshTokens,
+    });
 
     return token.setTokens(accessToken, refreshToken, res);
   } catch (err) {
@@ -170,7 +171,9 @@ const refresh = async (req: Request, res: Response): Promise<any> => {
       user.refreshTokens = [];
     }
     user.refreshTokens.push(refreshToken);
-    await user.save();
+    await User.findByIdAndUpdate(user._id, {
+      refreshTokens: user.refreshTokens,
+    });
 
     return res.send({
       accessToken: accessToken,

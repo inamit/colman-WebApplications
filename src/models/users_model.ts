@@ -46,12 +46,6 @@ export const hashPassword = async (password: any) => {
   return await bcrypt.hash(password, workFactor);
 };
 
-export type tUser = Document<unknown, {}, IUser> & IUser & Required<{
-  _id: string;
-}> & {
-  __v: number;
-}
-
 export const USER_RESOURCE_NAME = "User";
 const User = model<IUser>(USER_RESOURCE_NAME, userSchema);
 
