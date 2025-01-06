@@ -326,8 +326,6 @@ router.post("/logout", usersController.logout);
  *     description: Refresh access and refresh tokens using the provided refresh token
  *     tags:
  *       - Auth
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -357,6 +355,6 @@ router.post("/logout", usersController.logout);
  *       500:
  *         description: Server error
  */
-router.post("/refresh", authMiddleware, usersController.refresh);
+router.post("/refresh", usersController.refresh);
 
 export default router;
