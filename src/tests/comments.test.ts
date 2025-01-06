@@ -4,8 +4,7 @@ import { Express } from "express";
 import mongoose from "mongoose";
 import postsModel, { IPost } from "../models/posts_model";
 import commentsModel, { IComment } from "../models/comments_model";
-import usersModel from "../models/users_model";
-import { User } from "./testUtils";
+import usersModel, { IUser } from "../models/users_model";
 import authMiddleware from "../utilities/authMiddleware";
 
 jest.mock("../utilities/authMiddleware");
@@ -14,7 +13,7 @@ let app: Express;
 
 let post: IPost;
 
-let testUser: User = {
+let testUser: IUser = {
   username: "test",
   email: "test@test.com",
   password: "password",
