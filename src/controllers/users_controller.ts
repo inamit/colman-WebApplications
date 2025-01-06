@@ -127,14 +127,7 @@ const login = async (req: Request, res: Response): Promise<any> => {
       refreshToken,
     }: { accessToken: string; refreshToken: string } =
       await token.generateTokens(existingUser);
-
-    if (!existingUser.refreshTokens) {
-      existingUser.refreshTokens = [];
-    }
-    existingUser.refreshTokens.push(refreshToken);
-    await User.findByIdAndUpdate(existingUser._id, {
-      refreshTokens: existingUser.refreshTokens,
-    });
+    await addRefreshTokenToUser(existingUser, refreshToken);
 
     return token.setTokens(accessToken, refreshToken, res);
   } catch (err) {
@@ -167,13 +160,8 @@ const refresh = async (req: Request, res: Response): Promise<any> => {
     if (!refreshToken || !accessToken) {
       return res.status(500).send("Server Error");
     }
-    if (!user.refreshTokens) {
-      user.refreshTokens = [];
-    }
-    user.refreshTokens.push(refreshToken);
-    await User.findByIdAndUpdate(user._id, {
-      refreshTokens: user.refreshTokens,
-    });
+
+    await addRefreshTokenToUser(user, refreshToken);
 
     return res.send({
       accessToken: accessToken,
@@ -183,6 +171,19 @@ const refresh = async (req: Request, res: Response): Promise<any> => {
   } catch (err) {
     return res.status(400).send("fail");
   }
+};
+
+const addRefreshTokenToUser = async (
+  existingUser: IUser,
+  refreshToken: string
+) => {
+  if (!existingUser.refreshTokens) {
+    existingUser.refreshTokens = [];
+  }
+  existingUser.refreshTokens.push(refreshToken);
+  await User.findByIdAndUpdate(existingUser._id, {
+    refreshTokens: existingUser.refreshTokens,
+  });
 };
 
 export default {
