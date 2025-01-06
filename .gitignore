@@ -20,3 +20,5 @@ npm-debug.log*
 coverage/
 
 dist
+
+openapi.yaml
