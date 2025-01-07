@@ -1,16 +1,40 @@
-import request from 'supertest';
-import initApp from '../server';
-import mongoose from 'mongoose';
-import { Express } from 'express';
-import postsModel, { IPost } from '../models/posts_model';
+import request from "supertest";
+import initApp from "../server";
+import mongoose, { ObjectId, Types } from "mongoose";
+import { Express } from "express";
+import postsModel, { IPost } from "../models/posts_model";
+import usersModel, { IUser } from "../models/users_model";
+import authMiddleware from "../utilities/authMiddleware";
 
-let app: Express; 
+let app: Express;
+
+jest.mock("../utilities/authMiddleware");
+
+let testUser: IUser = {
+  username: "test",
+  email: "test@test.com",
+  password: "password",
+};
+
+let testPosts: {content: string, sender?: Types.ObjectId}[] = [
+  { content: "First post" },
+  { content: "Second post" },
+  { content: "Third post" },
+];
 
 beforeAll(async () => {
   app = await initApp();
+  await usersModel.deleteMany();
+  testUser = await usersModel.create(testUser);
+  (authMiddleware as jest.Mock).mockImplementation((req, res, next) => {
+    req.params.userId = testUser._id?.toString();
+
+    next();
+  });
 });
 beforeEach(async () => {
   await postsModel.deleteMany();
+  testPosts = testPosts.map(post => ({...post, sender: testUser._id!}));
 });
 
 afterAll(async () => {
@@ -20,7 +44,7 @@ afterAll(async () => {
 describe("POST /posts", () => {
   it("should create new post", async () => {
     const content = "This is my first post!";
-    const sender = "amitinbar";
+    const sender = testUser._id?.toString();
     const response = await request(app).post("/posts").send({
       content,
       sender,
@@ -32,26 +56,14 @@ describe("POST /posts", () => {
     expect(response.body.sender).toBe(sender);
   });
 
-  it.each([{ content: "No sender" }, { sender: "No content" }, {}])(
-    "should return 400 when parameter is missing (%o)",
-    async ({ content, sender }) => {
-      const response = await request(app).post("/posts").send({
-        sender,
-        content,
-      });
+  it("should return 400 when content is missing", async () => {
+    const response = await request(app).post("/posts").send({});
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty("error");
-    }
-  );
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("error");
+  });
 });
 
-const sender = "amitinbar";
-const testPosts = [
-  { content: "First post", sender },
-  { content: "Second post", sender },
-  { content: "Third post", sender: "Benli" },
-];
 describe("GET /posts", () => {
   describe("when there are no posts", () => {
     it("should return an empty array", async () => {
@@ -78,14 +90,14 @@ describe("GET /posts", () => {
 
     it("should return posts by sender", async () => {
       const expectedNumberOfPosts = testPosts.filter(
-        (post) => post.sender === sender
+        (post) => post.sender === testUser._id
       ).length;
-      const response = await request(app).get(`/posts?sender=${sender}`);
+      const response = await request(app).get(`/posts?sender=${testUser._id?.toString()}`);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toBeInstanceOf(Array);
       response.body.forEach((post: IPost) => {
-        expect(post.sender).toBe(sender);
+        expect(post.sender).toBe(testUser._id?.toString());
       });
       expect(response.body).toHaveLength(expectedNumberOfPosts);
     });
@@ -145,7 +157,7 @@ describe("PUT /posts/:post_id", () => {
       .put("/posts/673b7bd1df3f05e1bdcf5320")
       .send({
         content: "Updated post",
-        sender: "amitinbar",
+        sender: testUser._id,
       });
 
     expect(response.statusCode).toBe(404);
@@ -155,33 +167,28 @@ describe("PUT /posts/:post_id", () => {
   it("should return 400 when post_id is invalid", async () => {
     const response = await request(app).put("/posts/invalid_id").send({
       content: "Updated post",
-      sender: "amitinbar",
+      sender: testUser._id,
     });
 
     expect(response.statusCode).toBe(400);
     expect(response.body).toHaveProperty("error");
   });
 
-  it.each([{ content: "No sender" }, { sender: "No content" }, {}])(
-    "should return 400 when parameter is missing (%o)",
-    async ({ sender, content }) => {
-      const post = savedPosts[0];
-      const response = await request(app)
-        .put(`/posts/${post._id}`)
-        .send({ sender, content });
+  it("should return 400 when content is missing", async () => {
+    const post = savedPosts[0];
+    const response = await request(app).put(`/posts/${post._id}`).send({});
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty("error");
-    }
-  );
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("error");
+  });
 
   it("should update post by id", async () => {
     const post = savedPosts[0];
     const updatedContent = "Updated content";
-    const updatedSender = "Updated sender";
+    const updatedSender = testUser._id?.toString();
     const response = await request(app)
       .put(`/posts/${post._id}`)
-      .send({ content: updatedContent, sender: updatedSender });
+      .send({ content: updatedContent });
 
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toBe(updatedContent);

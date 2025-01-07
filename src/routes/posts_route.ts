@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router: Router = Router();
 import postsController from "../controllers/posts_controller";
+import authMiddleware from "../utilities/authMiddleware";
 
 /**
  * @swagger
@@ -34,8 +35,6 @@ import postsController from "../controllers/posts_controller";
  *          properties:
  *              content:
  *                  type: string
- *              sender:
- *                  type: string
  *  requestBodies:
  *      Post:
  *          description: Post object input
@@ -52,6 +51,8 @@ import postsController from "../controllers/posts_controller";
  *   get:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all posts
  *     description: Get all posts from the database
  *     operationId: getAllPosts
@@ -69,7 +70,7 @@ import postsController from "../controllers/posts_controller";
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/", postsController.getPosts);
+router.get("/", authMiddleware, postsController.getPosts);
 
 /**
  * @swagger
@@ -78,6 +79,8 @@ router.get("/", postsController.getPosts);
  *   post:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Add a new post
  *     description: Add a new post
  *     operationId: addPost
@@ -108,7 +111,7 @@ router.get("/", postsController.getPosts);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.post("/", postsController.saveNewPost);
+router.post("/", authMiddleware, postsController.saveNewPost);
 
 /**
  * @swagger
@@ -117,6 +120,8 @@ router.post("/", postsController.saveNewPost);
  *   get:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get post by postID
  *     description: Returns a single post
  *     operationId: getPostByID
@@ -145,7 +150,7 @@ router.post("/", postsController.saveNewPost);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/:post_id", postsController.getPostById);
+router.get("/:post_id", authMiddleware, postsController.getPostById);
 
 /**
  * @swagger
@@ -154,6 +159,8 @@ router.get("/:post_id", postsController.getPostById);
  *   put:
  *     tags:
  *       - Post
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the entire post with form data
  *     operationId: updatePost
  *     parameters:
@@ -190,6 +197,6 @@ router.get("/:post_id", postsController.getPostById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.put("/:post_id", postsController.updatePostById);
+router.put("/:post_id", authMiddleware, postsController.updatePostById);
 
 export default router;

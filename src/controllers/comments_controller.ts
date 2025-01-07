@@ -34,7 +34,7 @@ const saveNewComment = async (req: Request, res: Response): Promise<any> => {
     const comment = new Comment({
       postID: post_id,
       content: req.body.content,
-      sender: req.body.sender,
+      sender: req.params.userId,
     });
     const savedComment: IComment = await comment.save();
     return res.json(savedComment);
@@ -46,18 +46,18 @@ const saveNewComment = async (req: Request, res: Response): Promise<any> => {
 
 const updateCommentById = async (req: Request, res: Response): Promise<any> => {
   const { comment_id }: { comment_id?: string } = req.params;
-  const { content, sender }: { content: string; sender: string } = req.body;
+  const { content }: { content: string; } = req.body;
 
   try {
-    if (!content || !sender) {
+    if (!content) {
       return res
         .status(400)
-        .json({ error: "Content and sender are required." });
+        .json({ error: "Content is required." });
     }
 
     const updatedComment: IComment | null = await Comment.findByIdAndUpdate(
       comment_id,
-      { content, sender },
+      { content, sender: req.params.userId },
       { new: true, runValidators: true }
     );
 

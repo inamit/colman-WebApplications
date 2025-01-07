@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router: Router = Router();
 import commentsController from "../controllers/comments_controller";
+import authMiddleware from "../utilities/authMiddleware";
 
 /**
  * @swagger
@@ -38,8 +39,6 @@ import commentsController from "../controllers/comments_controller";
  *     properties:
  *       content:
  *         type: string
- *       sender:
- *         type: string
  *  requestBodies:
  *      Comment:
  *          description: Comment object input
@@ -56,6 +55,8 @@ import commentsController from "../controllers/comments_controller";
  *      post:
  *          tags:
  *              - Comment
+ *          security:
+ *              - bearerAuth: []
  *          summary: Add a new comment
  *          description: Add a new comment
  *          operationId: addComment
@@ -95,7 +96,7 @@ import commentsController from "../controllers/comments_controller";
  *                          schema:
  *                              $ref: '#/components/schemas/UnexpectedError'
  */
-router.post("/", commentsController.saveNewComment);
+router.post("/", authMiddleware, commentsController.saveNewComment);
 
 /**
  * @swagger
@@ -104,6 +105,8 @@ router.post("/", commentsController.saveNewComment);
  *      get:
  *        tags:
  *          - Comment
+ *        security:
+ *          - bearerAuth: []
  *        summary: Get all comments
  *        description: Get all comments from the database
  *        operationId: getAllComments
@@ -121,7 +124,7 @@ router.post("/", commentsController.saveNewComment);
  *                schema:
  *                  $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/", commentsController.getComments);
+router.get("/", authMiddleware, commentsController.getComments);
 
 /**
  * @swagger
@@ -130,6 +133,8 @@ router.get("/", commentsController.getComments);
  *   put:
  *     tags:
  *       - Comment
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the entire comment with form data
  *     operationId: updateComment
  *     parameters:
@@ -166,7 +171,7 @@ router.get("/", commentsController.getComments);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.put("/:comment_id", commentsController.updateCommentById);
+router.put("/:comment_id", authMiddleware, commentsController.updateCommentById);
 
 /**
  * @swagger
@@ -175,6 +180,8 @@ router.put("/:comment_id", commentsController.updateCommentById);
  *   delete:
  *     tags:
  *       - Comment
+ *     security:
+ *       - bearerAuth: []
  *     summary: Delete comment by ID
  *     description: Deletes a comment
  *     operationId: deleteCommentByID
@@ -203,6 +210,6 @@ router.put("/:comment_id", commentsController.updateCommentById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.delete("/:comment_id", commentsController.deleteCommentById);
+router.delete("/:comment_id", authMiddleware, commentsController.deleteCommentById);
 
 export default router;

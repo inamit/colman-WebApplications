@@ -1,18 +1,39 @@
-import request from 'supertest';
-import initApp from '../server';
-import { Express } from 'express';
-import mongoose from 'mongoose';
-import postsModel, { IPost } from '../models/posts_model';
-import commentsModel, { IComment } from '../models/comments_model';
+import request from "supertest";
+import initApp from "../server";
+import { Express } from "express";
+import mongoose from "mongoose";
+import postsModel, { IPost } from "../models/posts_model";
+import commentsModel, { IComment } from "../models/comments_model";
+import usersModel, { IUser } from "../models/users_model";
+import authMiddleware from "../utilities/authMiddleware";
 
-let app: Express;  
+jest.mock("../utilities/authMiddleware");
+
+let app: Express;
 
 let post: IPost;
+
+let testUser: IUser = {
+  username: "test",
+  email: "test@test.com",
+  password: "password",
+};
 
 beforeAll(async () => {
   app = await initApp();
   await postsModel.deleteMany();
-  post = await postsModel.create({ content: "Test post", sender: "amitinbar" });
+  await commentsModel.deleteMany();
+  await usersModel.deleteMany();
+  testUser = await usersModel.create(testUser);
+  (authMiddleware as jest.Mock).mockImplementation((req, res, next) => {
+    req.params.userId = testUser._id?.toString();
+
+    next();
+  });
+  post = await postsModel.create({
+    content: "Test post",
+    sender: testUser._id!,
+  });
 });
 
 beforeEach(async () => {
@@ -26,42 +47,32 @@ afterAll(async () => {
 describe("POST /comments", () => {
   it("should create new comment", async () => {
     const content = "This is my first comment!";
-    const sender = "amitinbar";
     const response = await request(app)
       .post(`/comments?post_id=${post._id}`)
       .send({
         content,
-        sender,
       });
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty("_id");
     expect(response.body.content).toBe(content);
-    expect(response.body.sender).toBe(sender);
     expect(response.body.postID).toBe(post._id.toString());
   });
 
-  it.each([{ content: "No sender" }, { sender: "No content" }, {}])(
-    "should return 400 when parameter is missing (%o)",
-    async ({ content, sender }) => {
-      const response = await request(app)
-        .post(`/comments?post_id=${post._id}`)
-        .send({
-          sender,
-          content,
-        });
+  it("should return 400 when content is missing", async () => {
+    const response = await request(app)
+      .post(`/comments?post_id=${post._id}`)
+      .send({});
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty("error");
-    }
-  );
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("error");
+  });
 
   it("should return 404 when post does not exist", async () => {
     const response = await request(app)
       .post(`/comments?post_id=673b7bd1df3f05e1bdcf5320`)
       .send({
         content: "This is my first comment!",
-        sender: "amitinbar",
       });
 
     expect(response.statusCode).toBe(404);
@@ -71,7 +82,6 @@ describe("POST /comments", () => {
   it("should return 400 when post_id is missing", async () => {
     const response = await request(app).post(`/comments`).send({
       content: "This is my first comment!",
-      sender: "amitinbar",
     });
 
     expect(response.statusCode).toBe(400);
@@ -81,7 +91,6 @@ describe("POST /comments", () => {
   it("should return 400 when post_id is invalid", async () => {
     const response = await request(app).post(`/comments?post_id=invalid`).send({
       content: "This is my first comment!",
-      sender: "amitinbar",
     });
 
     expect(response.statusCode).toBe(400);
@@ -89,9 +98,9 @@ describe("POST /comments", () => {
   });
 });
 
-let comments:  Partial<IComment>[] = [
-  { content: "First comment", sender: "amitinbar"},
-  { content: "Second comment", sender: "amitinbar"},
+let comments: Partial<IComment>[] = [
+  { content: "First comment" },
+  { content: "Second comment" },
 ];
 describe("GET /comments", () => {
   describe("when there are no comments", () => {
@@ -105,11 +114,15 @@ describe("GET /comments", () => {
 
   describe("when there are comments", () => {
     beforeEach(async () => {
-      comments = comments.map((comment: Partial<IComment>) => ({ ...comment, postID: post._id }));
+      comments = comments.map((comment: Partial<IComment>) => ({
+        ...comment,
+        postID: post._id,
+        sender: testUser._id,
+      }));
       comments.push({
         postID: new mongoose.Types.ObjectId("673b7bd1df3f05e1bdcf5321"),
         content: "Third comment",
-        sender: "Benli"
+        sender: testUser._id,
       });
       await commentsModel.create(comments);
     });
@@ -152,23 +165,23 @@ describe("GET /comments", () => {
 describe("PUT /comments/:comment_id", () => {
   let savedComments: Partial<IComment>[];
   beforeEach(async () => {
-    comments = comments.map((comment: Partial<IComment>) => ({ ...comment, postID: post._id }));
+    comments = comments.map((comment: Partial<IComment>) => ({
+      ...comment,
+      postID: post._id,
+    }));
     savedComments = await commentsModel.create(comments);
   });
 
   it("should update comment by id", async () => {
     const newContent = "Updated comment";
-    const newSender = "amitinbar2";
     const response = await request(app)
       .put(`/comments/${savedComments[0]._id}`)
       .send({
         content: newContent,
-        sender: newSender,
       });
 
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toBe(newContent);
-    expect(response.body.sender).toBe(newSender);
   });
 
   it("should return 404 when comment does not exist", async () => {
@@ -176,24 +189,21 @@ describe("PUT /comments/:comment_id", () => {
       .put(`/comments/673b7bd1df3f05e1bdcf5320`)
       .send({
         content: "Updated comment",
-        sender: "amitinbar2",
+        sender: testUser._id,
       });
 
     expect(response.statusCode).toBe(404);
     expect(response.body).toHaveProperty("error");
   });
 
-  it.each([{ content: "No sender" }, { sender: "No content" }, {}])(
-    "should return 400 when parameter is missing (%o)",
-    async ({ content, sender }) => {
-      const response = await request(app)
-        .put(`/comments/${savedComments[0]._id}`)
-        .send({ content, sender });
+  it("should return 400 when content is missing", async () => {
+    const response = await request(app)
+      .put(`/comments/${savedComments[0]._id}`)
+      .send({});
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty("error");
-    }
-  );
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toHaveProperty("error");
+  });
 
   describe("mongo failure", () => {
     it("should return 500 when there is a server error", async () => {
@@ -205,7 +215,6 @@ describe("PUT /comments/:comment_id", () => {
         .put(`/comments/${savedComments[0]._id}`)
         .send({
           content: "Updated comment",
-          sender: "amitinbar2",
         });
 
       expect(response.statusCode).toBe(500);
@@ -217,7 +226,10 @@ describe("PUT /comments/:comment_id", () => {
 describe("DELETE /comments/:comment_id", () => {
   let savedComments: Partial<IComment>[];
   beforeEach(async () => {
-    comments = comments.map((comment: Partial<IComment>) => ({ ...comment, postID: post._id }));
+    comments = comments.map((comment: Partial<IComment>) => ({
+      ...comment,
+      postID: post._id,
+    }));
     savedComments = await commentsModel.create(comments);
   });
 

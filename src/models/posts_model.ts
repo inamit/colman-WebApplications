@@ -1,9 +1,10 @@
 import mongoose, { Schema, Types } from "mongoose";
+import { USER_RESOURCE_NAME } from "./users_model";
 
 export interface IPost {
   _id: Types.ObjectId,
   content: string;
-  sender: string;
+  sender: Types.ObjectId;
 }
 
 const postSchema = new Schema<IPost>({
@@ -12,7 +13,8 @@ const postSchema = new Schema<IPost>({
     required: true,
   },
   sender: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: USER_RESOURCE_NAME,
     required: true,
   },
 });

@@ -7,6 +7,7 @@ import commentsRoute from "./routes/comments_route";
 import usersRoute from "./routes/users_route";
 import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
+import authMiddleware from "./utilities/authMiddleware";
 
 dotenv.config();
 
@@ -29,6 +30,16 @@ app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+/**
+* @swagger
+* components:
+*   securitySchemes:
+*     bearerAuth:
+*       type: http
+*       scheme: bearer
+*       bearerFormat: JWT
+*/
 
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);

@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 import usersController from "../controllers/users_controller";
+import authMiddleware from "../utilities/authMiddleware";
 
 /**
  * @swagger
@@ -51,6 +52,8 @@ import usersController from "../controllers/users_controller";
  *   get:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get all users
  *     description: Get all users from the database
  *     operationId: getAllUsers
@@ -68,7 +71,7 @@ import usersController from "../controllers/users_controller";
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/", usersController.getAllUsers);
+router.get("/", authMiddleware, usersController.getAllUsers);
 
 /**
  * @swagger
@@ -116,6 +119,8 @@ router.post("/", usersController.registerNewUser);
  *   get:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Get User by userID
  *     description: Returns a single user
  *     operationId: getUserByID
@@ -144,7 +149,7 @@ router.post("/", usersController.registerNewUser);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.get("/:user_id", usersController.getUserById);
+router.get("/:user_id", authMiddleware, usersController.getUserById);
 
 /**
  * @swagger
@@ -153,6 +158,8 @@ router.get("/:user_id", usersController.getUserById);
  *   patch:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Updates the user's data
  *     operationId: updateUser
  *     parameters:
@@ -189,7 +196,7 @@ router.get("/:user_id", usersController.getUserById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.patch("/:user_id", usersController.updateUserById);
+router.patch("/:user_id", authMiddleware, usersController.updateUserById);
 
 /**
  * @swagger
@@ -198,6 +205,8 @@ router.patch("/:user_id", usersController.updateUserById);
  *   delete:
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     summary: Delete user by ID
  *     description: Deletes a user
  *     operationId: deleteUserByID
@@ -226,7 +235,7 @@ router.patch("/:user_id", usersController.updateUserById);
  *             schema:
  *               $ref: '#/components/schemas/UnexpectedError'
  */
-router.delete("/:user_id", usersController.deleteUserById);
+router.delete("/:user_id", authMiddleware, usersController.deleteUserById);
 
 /**
  * @swagger
@@ -308,5 +317,44 @@ router.post("/login", usersController.login);
  *               $ref: '#/components/schemas/UnexpectedError'
  */
 router.post("/logout", usersController.logout);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: Refresh tokens
+ *     description: Refresh access and refresh tokens using the provided refresh token
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     responses:
+ *       200:
+ *         description: Tokens refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 refreshToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Invalid refresh token
+ *       500:
+ *         description: Server error
+ */
+router.post("/refresh", usersController.refresh);
 
 export default router;
